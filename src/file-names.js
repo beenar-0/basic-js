@@ -16,41 +16,22 @@ const { NotImplementedError } = require('../extensions/index.js');
  *
  */
 function renameFiles(names) {
-  function check(names) {
-    let copies = {}
-    names.forEach((item, index) => {
-      let temp = names.filter(filterItem => item === filterItem)
-      if (temp.length > 1) {
-        copies[index] = item
-      }
-    })
-    copies = Object.entries(copies)
-    let set = new Set
-    copies.forEach((item) => {
-      set.add(item[1])
-    })
-    let rez = []
-    for (let value of set) {
-      let temp = [value, []]
-      copies.forEach((item) => {
-        if (item[1] === value) temp[1].push(item[0])
-      })
-      rez.push(temp)
+  let obj = {}
+  names.forEach((name, index) => {
+    if (names.filter(item => name === item).length > 1) {
+      if (!obj[name]) obj[name] = []
+      obj[name].push(index)
     }
-    copies = Object.fromEntries(rez)
-    for (let value in copies) {
-      for (let i = 1; i < copies[value].length; i++) {
-        names[copies[value][i]] += `(${i})`
-      }
+  })
+  for (let key in obj) {
+    for (let i = 1; i < obj[key].length; i++) {
+      names[obj[key][i]] += `(${i})`
     }
-    let uniqueCount = new Set
-    names.forEach((item)=>{
-      uniqueCount.add(item)
-    })
-    if (names.length > uniqueCount.size) check(names)
-    return names
   }
-  return check(names)
+  let set = new Set
+  names.forEach(item => set.add(item))
+  if (set.size !== names.length) return renameFiles(names)
+  else return names
 }
 
 module.exports = {
